@@ -13,8 +13,7 @@
   "main": "./lib/passport-familysearch",
   "dependencies": {
     "pkginfo": "0.2.x",
-    "passport-oauth": "~0.1.9",
-    "xml2js": "0.1.x"
+    "passport-oauth": "~0.1.9"
   },
   "devDependencies": {
     "vows": "0.6.x"
