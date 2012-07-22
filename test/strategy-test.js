@@ -30,8 +30,8 @@ vows.describe('FamilySearchStrategy').addBatch({
       
       // mock
       strategy._oauth.get = function(url, token, tokenSecret, callback) {
-        if (url == 'https://api.familysearch.org/identity/v2/user?sessionId=token') {
-          var body = '<?xml version=\'1.0\' encoding=\'UTF-8\'?><identity xmlns="http://api.familysearch.org/identity/v2" version="2.7.20120531.1616" statusMessage="OK" statusCode="200"><users><user id="XXXX-XXX0"><username>api-user-0000</username><names><name type="Display">Micheal Dickenson</name><name type="Family">Dickenson</name><name type="Given">Micheal</name></names><emails><email type="Primary">noreply@ldschurch.org</email><email type="Alternate" /></emails><member id="0001100101101" /></user></users></identity>';
+        if (url == 'https://api.familysearch.org/identity/v2/user?dataFormat=application/json&sessionId=token') {
+          var body = '{"session":null,"users":[{"username":"api-user-0000","password":null,"names":[{"value":"Micheal Dickenson","type":"Display"},{"value":"Dickenson","type":"Family"},{"value":"Micheal","type":"Given"}],"emails":[{"value":"noreply@ldschurch.org","type":"Primary"},{"value":null,"type":"Alternate"}],"member":{"ward":null,"stake":null,"templeDistrict":null,"id":"0000000000000"},"id":"XXXX-XXX0","requestedId":null}],"authentication":null,"status":null,"version":"2.7.20120531.1616","statusCode":200,"statusMessage":"OK","deprecated":null}';
           callback(null, body, undefined);
         } else {
           callback(new Error('something is wrong'));
@@ -63,13 +63,15 @@ vows.describe('FamilySearchStrategy').addBatch({
         assert.equal(profile.displayName, 'Micheal Dickenson');
         assert.equal(profile.name.familyName, 'Dickenson');
         assert.equal(profile.name.givenName, 'Micheal');
+        assert.equal(profile.emails.length, 1);
+        assert.equal(profile.emails[0].value, 'noreply@ldschurch.org');
+        assert.equal(profile.emails[0].primary, true);
       },
       'should set raw property' : function(err, profile) {
         assert.isString(profile._raw);
       },
-      'should set xml2js property' : function(err, profile) {
-        assert.isObject(profile._xml2js);
-        assert.strictEqual(profile._xml2json, profile._xml2js);
+      'should set json property' : function(err, profile) {
+        assert.isObject(profile._json);
       },
     },
   },
@@ -85,8 +87,8 @@ vows.describe('FamilySearchStrategy').addBatch({
       
       // mock
       strategy._oauth.get = function(url, token, tokenSecret, callback) {
-        if (url == 'https://sandbox.familysearch.org/identity/v2/user?sessionId=token') {
-          var body = '<?xml version=\'1.0\' encoding=\'UTF-8\'?><identity xmlns="http://api.familysearch.org/identity/v2" version="2.7.20120531.1616" statusMessage="OK" statusCode="200"><users><user id="XXXX-XXX0"><username>api-user-0000</username><names><name type="Display">Micheal Dickenson</name><name type="Family">Dickenson</name><name type="Given">Micheal</name></names><emails><email type="Primary">noreply@ldschurch.org</email><email type="Alternate" /></emails><member id="0001100101101" /></user></users></identity>';
+        if (url == 'https://sandbox.familysearch.org/identity/v2/user?dataFormat=application/json&sessionId=token') {
+          var body = '{"session":null,"users":[{"username":"api-user-0000","password":null,"names":[{"value":"Micheal Dickenson","type":"Display"},{"value":"Dickenson","type":"Family"},{"value":"Micheal","type":"Given"}],"emails":[{"value":"noreply@ldschurch.org","type":"Primary"},{"value":null,"type":"Alternate"}],"member":{"ward":null,"stake":null,"templeDistrict":null,"id":"0000000000000"},"id":"XXXX-XXX0","requestedId":null}],"authentication":null,"status":null,"version":"2.7.20120531.1616","statusCode":200,"statusMessage":"OK","deprecated":null}';
           callback(null, body, undefined);
         } else {
           callback(new Error('something is wrong'));
@@ -122,9 +124,8 @@ vows.describe('FamilySearchStrategy').addBatch({
       'should set raw property' : function(err, profile) {
         assert.isString(profile._raw);
       },
-      'should set xml2js property' : function(err, profile) {
-        assert.isObject(profile._xml2js);
-        assert.strictEqual(profile._xml2json, profile._xml2js);
+      'should set json property' : function(err, profile) {
+        assert.isObject(profile._json);
       },
     },
   },
