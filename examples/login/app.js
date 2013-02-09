@@ -1,7 +1,7 @@
 var express = require('express')
   , passport = require('passport')
   , util = require('util')
-  , FamilySearchStrategy = require('passport-familysearch').Strategy;
+  , FamilySearchStrategy = require('passport-familysearch').LegacyStrategy;
 
 var FAMILYSEARCH_DEVELOPER_KEY = "insert_familysearch_developer_key_here";
 
