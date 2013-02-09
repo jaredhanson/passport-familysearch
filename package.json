@@ -1,8 +1,12 @@
 {
   "name": "passport-familysearch",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "FamilySearch authentication strategy for Passport.",
   "author": { "name": "Jared Hanson", "email": "jaredhanson@gmail.com", "url": "http://www.jaredhanson.net/" },
+  "contributors": [
+    { "name": "Logan Allred", "email": "redbugz@gmail.com" },
+    { "name": "Tim Shadel", "email": "timshadel@gmail.com", "url": "http://timshadel.com/" }
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/jaredhanson/passport-familysearch.git"
@@ -13,8 +17,7 @@
   "main": "./lib/passport-familysearch",
   "dependencies": {
     "pkginfo": "0.2.x",
-    "passport-oauth": "~0.1.9",
-    "xml2js": "0.1.x"
+    "passport-oauth": "~0.1.9"
   },
   "devDependencies": {
     "vows": "0.6.x"

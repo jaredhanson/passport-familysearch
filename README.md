@@ -1,7 +1,8 @@
 # Passport-FamilySearch
 
 [Passport](http://passportjs.org/) strategy for authenticating with [FamilySearch](http://familysearch.org)
-using the OAuth 1.0a API.
+using the OAuth 2.0 API. The legacy strategy using the OAuth 1.0a API is
+available for use, to support older applications.
 
 This module lets you authenticate using FamilySearch in your Node.js
 applications.  By plugging into Passport, FamilySearch authentication can be
@@ -22,12 +23,13 @@ FamilySearch account and OAuth tokens.  The strategy requires a `verify`
 callback, which accepts these credentials and calls `done` providing a user, as
 well as `options` specifying a consumer key, consumer secret, and callback URL.
 
+    var FamilySearchStrategy = require('passport-familysearch').Strategy;
+
     passport.use(new FamilySearchStrategy({
-        consumerKey: FAMILYSEARCH_DEVELOPER_KEY,
-        consumerSecret: '',
+        devKey: FAMILYSEARCH_DEVELOPER_KEY,
         callbackURL: "http://127.0.0.1:3000/auth/familysearch/callback"
       },
-      function(token, tokenSecret, profile, done) {
+      function(accessToken, refreshToken, profile, done) {
         User.findOrCreate({ familysearchId: profile.id }, function (err, user) {
           return done(err, user);
         });
@@ -67,9 +69,34 @@ For a complete, working example, refer to the [login example](https://github.com
 
 [![Build Status](https://secure.travis-ci.org/jaredhanson/passport-familysearch.png)](http://travis-ci.org/jaredhanson/passport-familysearch)
 
+## Legacy Usage
+
+#### Configure Strategy
+
+The FamilySearch authentication strategy authenticates users using a
+FamilySearch account and OAuth tokens.  The strategy requires a `verify`
+callback, which accepts these credentials and calls `done` providing a user, as
+well as `options` specifying a consumer key, consumer secret, and callback URL.
+
+    var FamilySearchStrategy = require('passport-familysearch').LegacyStrategy;
+
+    passport.use(new FamilySearchStrategy({
+        consumerKey: FAMILYSEARCH_DEVELOPER_KEY,
+        consumerSecret: '',
+        callbackURL: "http://127.0.0.1:3000/auth/familysearch/callback"
+      },
+      function(token, tokenSecret, profile, done) {
+        User.findOrCreate({ familysearchId: profile.id }, function (err, user) {
+          return done(err, user);
+        });
+      }
+    ));
+
 ## Credits
 
   - [Jared Hanson](http://github.com/jaredhanson)
+  - [Logan Allred](http://github.com/redbugz)
+  - [Tim Shadel](http://github.com/timshadel)
 
 ## License
 

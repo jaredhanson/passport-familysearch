@@ -1,7 +1,7 @@
 var express = require('express')
   , passport = require('passport')
   , util = require('util')
-  , FamilySearchStrategy = require('passport-familysearch').Strategy;
+  , FamilySearchStrategy = require('passport-familysearch').LegacyStrategy;
 
 var FAMILYSEARCH_DEVELOPER_KEY = "insert_familysearch_developer_key_here";
 
@@ -27,15 +27,18 @@ passport.deserializeUser(function(obj, done) {
 //   credentials (in this case, a token, tokenSecret, and FamilySearch profile), and
 //   invoke a callback with a user object.
 passport.use(new FamilySearchStrategy({
-    authorizationURL: 'https://sandbox.familysearch.org/cis-web/oauth2/v3/authorization',
-    tokenURL: 'https://sandbox.familysearch.org/cis-web/oauth2/v3/token',
-    devKey: FAMILYSEARCH_DEVELOPER_KEY,
+    requestTokenURL: 'https://sandbox.familysearch.org/identity/v2/request_token',
+    accessTokenURL: 'https://sandbox.familysearch.org/identity/v2/access_token',
+    userAuthorizationURL: 'https://sandbox.familysearch.org/identity/v2/authorize',
+    userProfileURL: 'https://sandbox.familysearch.org/identity/v2/user',
+    consumerKey: FAMILYSEARCH_DEVELOPER_KEY,
+    consumerSecret: '',
     callbackURL: "http://127.0.0.1:3000/auth/familysearch/callback"
   },
-  function(accessToken, refreshToken, profile, done) {
+  function(token, tokenSecret, profile, done) {
     // asynchronous verification, for effect...
     process.nextTick(function () {
-
+      
       // To keep the example simple, the user's FamilySearch profile is returned to
       // represent the logged-in user.  In a typical application, you would want
       // to associate the FamilySearch account with a user record in your database,
@@ -69,7 +72,7 @@ app.configure(function() {
 
 
 app.get('/', function(req, res){
-  res.render('index', { user: req.user, layout: 'layout' });
+  res.render('index', { user: req.user });
 });
 
 app.get('/account', ensureAuthenticated, function(req, res){
