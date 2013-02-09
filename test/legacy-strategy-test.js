@@ -1,7 +1,7 @@
 var vows = require('vows');
 var assert = require('assert');
 var util = require('util');
-var FamilySearchStrategy = require('passport-familysearch/strategy');
+var FamilySearchStrategy = require('passport-familysearch/legacy-strategy');
 
 
 vows.describe('FamilySearchStrategy').addBatch({
