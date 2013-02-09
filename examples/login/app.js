@@ -3,7 +3,7 @@ var express = require('express')
   , util = require('util')
   , FamilySearchStrategy = require('passport-familysearch').Strategy;
 
-var FAMILYSEARCH_DEVELOPER_KEY = "insert_familysearch_developer_key_here"
+var FAMILYSEARCH_DEVELOPER_KEY = "insert_familysearch_developer_key_here";
 
 
 // Passport session setup.
@@ -51,7 +51,7 @@ passport.use(new FamilySearchStrategy({
 
 
 
-var app = express.createServer();
+var app = express();
 
 // configure Express
 app.configure(function() {
