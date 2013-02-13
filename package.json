@@ -2,11 +2,7 @@
   "name": "passport-familysearch",
   "version": "1.0.0",
   "description": "FamilySearch authentication strategy for Passport.",
-  "author": { "name": "Jared Hanson", "email": "jaredhanson@gmail.com", "url": "http://www.jaredhanson.net/" },
-  "contributors": [
-    { "name": "Logan Allred", "email": "redbugz@gmail.com" },
-    { "name": "Tim Shadel", "email": "timshadel@gmail.com", "url": "http://timshadel.com/" }
-  ],
+  "keywords": ["passport", "familysearch", "auth", "authn", "authentication", "identity"],
   "repository": {
     "type": "git",
     "url": "git://github.com/jaredhanson/passport-familysearch.git"
@@ -14,6 +10,15 @@
   "bugs": {
     "url": "http://github.com/jaredhanson/passport-familysearch/issues"
   },
+  "author": { "name": "Jared Hanson", "email": "jaredhanson@gmail.com", "url": "http://www.jaredhanson.net/" },
+  "contributors": [
+    { "name": "Logan Allred", "email": "redbugz@gmail.com" },
+    { "name": "Tim Shadel", "email": "timshadel@gmail.com", "url": "http://timshadel.com/" }
+  ],
+  "licenses": [ {
+    "type": "MIT",
+    "url": "http://www.opensource.org/licenses/MIT" 
+  } ],
   "main": "./lib/passport-familysearch",
   "dependencies": {
     "pkginfo": "0.2.x",
@@ -25,10 +30,5 @@
   "scripts": {
     "test": "NODE_PATH=lib node_modules/.bin/vows test/*-test.js"
   },
-  "engines": { "node": ">= 0.4.0" },
-  "licenses": [ {
-    "type": "MIT",
-    "url": "http://www.opensource.org/licenses/MIT" 
-  } ],
-  "keywords": ["passport", "familysearch", "auth", "authn", "authentication", "identity"]
+  "engines": { "node": ">= 0.4.0" }
 }
