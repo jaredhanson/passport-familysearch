@@ -1,9 +1,13 @@
 {
   "name": "passport-familysearch-examples-login",
   "version": "0.0.0",
+  "scripts": {
+    "start": "node app.js"
+  },
   "dependencies": {
-    "express": ">= 0.0.0",
     "ejs": ">= 0.0.0",
+    "express": "^3.21.2",
+    "express-layout": "^0.1.0",
     "passport": ">= 0.0.0",
     "passport-familysearch": ">= 0.0.0"
   }

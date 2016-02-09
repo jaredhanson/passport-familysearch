@@ -1,9 +1,16 @@
-var express = require('express')
-  , passport = require('passport')
-  , util = require('util')
-  , FamilySearchStrategy = require('passport-familysearch').Strategy;
+var express = require('express'),
+    session = require('express-session'),
+    bodyParser = require('body-parser'),
+    cookieParser = require('cookie-parser'),
+    logger = require('morgan'),
+    methodOverride = require('method-override'),
+    layout = require('express-layout'),
+    passport = require('passport'),
+    util = require('util'),
+    jwt = require('jsonwebtoken')
+    FamilySearchStrategy = require('../../lib/passport-familysearch/index').OpenIDConnectStrategy;
 
-var FAMILYSEARCH_DEVELOPER_KEY = "insert_familysearch_developer_key_here";
+var FAMILYSEARCH_DEVELOPER_KEY = "dev_key_goes_here";
 
 
 // Passport session setup.
@@ -26,22 +33,23 @@ passport.deserializeUser(function(obj, done) {
 //   Strategies in passport require a `verify` function, which accept
 //   credentials (in this case, a token, tokenSecret, and FamilySearch profile), and
 //   invoke a callback with a user object.
-passport.use(new FamilySearchStrategy({
+passport.use('familysearch', new FamilySearchStrategy({
     authorizationURL: 'https://sandbox.familysearch.org/cis-web/oauth2/v3/authorization',
     tokenURL: 'https://sandbox.familysearch.org/cis-web/oauth2/v3/token',
-    devKey: FAMILYSEARCH_DEVELOPER_KEY,
-    callbackURL: "http://127.0.0.1:3000/auth/familysearch/callback"
+    clientID: FAMILYSEARCH_DEVELOPER_KEY,
+    callbackURL: "http://localhost:3000/auth/familysearch/callback",
+    skipUserProfile: true,
+    scope: 'profile'
   },
-  function(accessToken, refreshToken, profile, done) {
-    // asynchronous verification, for effect...
-    process.nextTick(function () {
+  function(iss, sub, profile, idToken, accessToken, refreshToken, params,  done) {
+    var user = {
+      accessToken: params.access_token,
+      idToken: params.id_token,
+      parsedAccessToken: jwt.decode(accessToken),
+      parsedIdToken: jwt.decode(params.id_token)
+    };
 
-      // To keep the example simple, the user's FamilySearch profile is returned to
-      // represent the logged-in user.  In a typical application, you would want
-      // to associate the FamilySearch account with a user record in your database,
-      // and return that user instead.
-      return done(null, profile);
-    });
+    return done(null, user);
   }
 ));
 
@@ -50,25 +58,25 @@ passport.use(new FamilySearchStrategy({
 
 var app = express();
 
-// configure Express
-app.configure(function() {
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'ejs');
-  app.use(express.logger());
-  app.use(express.cookieParser());
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(express.session({ secret: 'keyboard cat' }));
-  // Initialize Passport!  Also use passport.session() middleware, to support
-  // persistent login sessions (recommended).
-  app.use(passport.initialize());
-  app.use(passport.session());
-  app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
-});
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+app.use(layout());
+app.set('layout', 'layout');
+app.use(logger());
+app.use(cookieParser());
+app.use(bodyParser());
+app.use(methodOverride());
+app.use(session({ secret: 'keyboard cat' }));
+// Initialize Passport!  Also use passport.session() middleware, to support
+// persistent login sessions (recommended).
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.static(__dirname + '/public'));
+
 
 
 app.get('/', function(req, res){
+  console.log(req.user);
   res.render('index', { user: req.user, layout: 'layout' });
 });
 
@@ -97,7 +105,7 @@ app.get('/auth/familysearch',
 //   request.  If authentication fails, the user will be redirected back to the
 //   login page.  Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
-app.get('/auth/familysearch/callback', 
+app.get('/auth/familysearch/callback',
   passport.authenticate('familysearch', { failureRedirect: '/login' }),
   function(req, res) {
     res.redirect('/');
