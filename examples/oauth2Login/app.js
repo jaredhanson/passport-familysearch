@@ -1,7 +1,8 @@
-var express = require('express')
-  , passport = require('passport')
-  , util = require('util')
-  , FamilySearchStrategy = require('passport-familysearch').LegacyStrategy;
+var express = require('express'),
+    passport = require('passport'),
+    layout = require('express-layout'),
+    util = require('util'),
+    FamilySearchStrategy = require('../../lib/passport-familysearch/index').OAuth2Strategy;
 
 var FAMILYSEARCH_DEVELOPER_KEY = "insert_familysearch_developer_key_here";
 
@@ -26,19 +27,17 @@ passport.deserializeUser(function(obj, done) {
 //   Strategies in passport require a `verify` function, which accept
 //   credentials (in this case, a token, tokenSecret, and FamilySearch profile), and
 //   invoke a callback with a user object.
-passport.use(new FamilySearchStrategy({
-    requestTokenURL: 'https://sandbox.familysearch.org/identity/v2/request_token',
-    accessTokenURL: 'https://sandbox.familysearch.org/identity/v2/access_token',
-    userAuthorizationURL: 'https://sandbox.familysearch.org/identity/v2/authorize',
-    userProfileURL: 'https://sandbox.familysearch.org/identity/v2/user',
-    consumerKey: FAMILYSEARCH_DEVELOPER_KEY,
-    consumerSecret: '',
-    callbackURL: "http://127.0.0.1:3000/auth/familysearch/callback"
+passport.use('familysearch', new FamilySearchStrategy({
+    authorizationURL: 'https://sandbox.familysearch.org/cis-web/oauth2/v3/authorization',
+    tokenURL: 'https://sandbox.familysearch.org/cis-web/oauth2/v3/token',
+    devKey: FAMILYSEARCH_DEVELOPER_KEY,
+    callbackURL: "http://localhost:3000/auth/familysearch/callback",
+    userProfileURL: 'https://sandbox.familysearch.org/platform/users/current'
   },
-  function(token, tokenSecret, profile, done) {
+  function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
     process.nextTick(function () {
-      
+
       // To keep the example simple, the user's FamilySearch profile is returned to
       // represent the logged-in user.  In a typical application, you would want
       // to associate the FamilySearch account with a user record in your database,
@@ -57,6 +56,8 @@ var app = express();
 app.configure(function() {
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
+  app.use(layout());
+  app.set('layout', 'layout');
   app.use(express.logger());
   app.use(express.cookieParser());
   app.use(express.bodyParser());
@@ -72,7 +73,7 @@ app.configure(function() {
 
 
 app.get('/', function(req, res){
-  res.render('index', { user: req.user });
+  res.render('index', { user: req.user, layout: 'layout' });
 });
 
 app.get('/account', ensureAuthenticated, function(req, res){
@@ -100,7 +101,7 @@ app.get('/auth/familysearch',
 //   request.  If authentication fails, the user will be redirected back to the
 //   login page.  Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
-app.get('/auth/familysearch/callback', 
+app.get('/auth/familysearch/callback',
   passport.authenticate('familysearch', { failureRedirect: '/login' }),
   function(req, res) {
     res.redirect('/');
