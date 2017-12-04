@@ -1,15 +1,11 @@
-var vows = require('vows');
-var assert = require('assert');
-var util = require('util');
-var familysearch = require('passport-familysearch');
+var expect = require('chai').expect;
 
+var familysearch = require('..');
 
-vows.describe('passport-familysearch').addBatch({
-  
-  'module': {
-    'should report a version': function (x) {
-      assert.isString(familysearch.version);
-    },
-  },
-  
-}).export(module);
+describe('passport-familysearch', function () {
+
+  it('should report a version', function () {
+    expect(familysearch.version).to.be.a('string');
+  });
+
+});

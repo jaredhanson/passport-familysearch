@@ -1,5 +1,9 @@
+<% include layoutTop %>
+
 <% if (!user) { %>
 	<h2>Welcome! Please log in.</h2>
 <% } else { %>
 	<h2>Hello, <%= user.contactName %>.</h2>
 <% } %>
+
+<% include layoutBottom %>
