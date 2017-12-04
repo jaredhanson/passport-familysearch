@@ -1,8 +1,7 @@
 # Passport-FamilySearch
 
 [Passport](http://passportjs.org/) strategy for authenticating with [FamilySearch](http://familysearch.org)
-using the OAuth 2.0 API. The legacy strategy using the OAuth 1.0a API is
-available for use, to support older applications.
+using the OAuth 2.0 API.
 
 This module lets you authenticate using FamilySearch in your Node.js
 applications.  By plugging into Passport, FamilySearch authentication can be
@@ -58,28 +57,6 @@ application:
 
 For a complete, working example, refer to the [login example](https://github.com/jaredhanson/passport-familysearch/tree/master/examples/login).
 
-## Legacy Usage
-
-#### Configure Strategy
-
-The FamilySearch authentication strategy authenticates users using a
-FamilySearch account and OAuth tokens.  The strategy requires a `verify`
-callback, which accepts these credentials and calls `done` providing a user, as
-well as `options` specifying a consumer key, consumer secret, and callback URL.
-
-    var FamilySearchStrategy = require('passport-familysearch').LegacyStrategy;
-
-    passport.use(new FamilySearchStrategy({
-        consumerKey: FAMILYSEARCH_DEVELOPER_KEY,
-        consumerSecret: '',
-        callbackURL: "http://127.0.0.1:3000/auth/familysearch/callback"
-      },
-      function(token, tokenSecret, profile, done) {
-        User.findOrCreate({ familysearchId: profile.id }, function (err, user) {
-          return done(err, user);
-        });
-      }
-    ));
 
 ## Tests
 
@@ -98,4 +75,4 @@ well as `options` specifying a consumer key, consumer secret, and callback URL.
 
 [The MIT License](http://opensource.org/licenses/MIT)
 
-Copyright (c) 2012-2013 Jared Hanson <[http://jaredhanson.net/](http://jaredhanson.net/)>
+Copyright (c) 2012-2017 Jared Hanson <[http://jaredhanson.net/](http://jaredhanson.net/)>

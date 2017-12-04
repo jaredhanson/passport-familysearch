@@ -1,161 +1,119 @@
-var vows = require('vows');
-var assert = require('assert');
-var util = require('util');
-var FamilySearchStrategy = require('../lib/passport-familysearch/strategy');
+'use strict';
 
-vows.describe('FamilySearchStrategy').addBatch({
+const chai = require('chai');
+chai.use(require('chai-passport-strategy'));
+const expect = chai.expect;
 
-  'strategy': {
-    topic: function() {
-      return new FamilySearchStrategy({
-        devKey: 'ABC123'
-      },
-      function() {});
-    },
+const FamilySearchStrategy = require('../lib/passport-familysearch/strategy');
+const InternalOAuthError = require('passport-oauth2').InternalOAuthError;
 
-    'should be named familysearch': function (strategy) {
-      assert.equal(strategy.name, 'familysearch');
-    }
-  },
+describe('FamilySearchStrategy', function () {
+  let strategy;
 
-  'strategy when loading user profile': {
-    topic: function() {
-      var strategy = new FamilySearchStrategy({
-        devKey: 'ABC123'
-      },
-      function() {});
+  before(function (done) {
+    strategy = new FamilySearchStrategy({
+      devKey: 'ABC123'
+    }, function () {});
 
-      // mock
-      strategy._oauth2._request = function(method, url, headers, post_body, access_token, callback) {
-        if (url == 'https://familysearch.org/platform/users/current') {
-          var body = '{"users":[{"id":"XXXX-XXX0","contactName":"Micheal Dickenson","email":"noreply@familysearch.org","links":{"self":{"href":"https://familysearch.org/platform/users/current"}}}]}';
-          callback(null, body, undefined);
-        } else {
-          callback(new Error('something is wrong'));
-        }
-      };
+    chai.passport.use(strategy)
+      .redirect(function (redirectUrl, status) {
+        // console.log('redirect', redirectUrl, status);
+        done();
+      })
+      .authenticate();
+  });
 
-      return strategy;
-    },
+  it('should be named familysearch', function () {
+    expect(strategy.name).to.eql('familysearch');
+  });
 
-    'when told to load user profile': {
-      topic: function(strategy) {
-        var self = this;
-        function done(err, profile) {
-          self.callback(err, profile);
-        }
-
-        process.nextTick(function () {
-          strategy.userProfile('access-token', done);
-        });
-      },
-
-      'should not error' : function(err, req) {
-        assert.isNull(err);
-      },
-      'should load profile' : function(err, profile) {
-        assert.equal(profile.provider, 'familysearch');
-        assert.equal(profile.id, 'XXXX-XXX0');
-        assert.equal(profile.contactName, 'Micheal Dickenson');
-        assert.equal(profile.email, 'noreply@familysearch.org');
-      },
-      'should set raw property' : function(err, profile) {
-        assert.isString(profile._raw);
-      },
-      'should set json property' : function(err, profile) {
-        assert.isObject(profile._json);
+  it('should load user profile', function (done) {
+    strategy._oauth2._request = function (method, url, headers, post_body, access_token, callback) {
+      if (url === 'https://api.familysearch.org/platform/users/current') {
+        const body = '{"users":[{"id":"XXXX-XXX0","contactName":"Some Person","email":"noreply@familysearch.org","links":{"self":{"href":"https://api.familysearch.org/platform/users/current"}}}]}';
+        callback(null, body, undefined);
+      } else {
+        callback(new Error('something is wrong'));
       }
-    }
-  },
+    };
 
-  'strategy when loading user profile with a userProfileURL option': {
-    topic: function() {
-      var strategy = new FamilySearchStrategy({
-        userProfileURL: 'https://sandbox.familysearch.org/platform/users/current',
-        devKey: 'ABC123'
-      },
-      function() {});
+    process.nextTick(function () {
+      strategy.userProfile('access-token', function (err, profile) {
+        expect(err).to.not.exist;
+        expect(profile.provider).to.eql('familysearch');
+        expect(profile.id).to.eql('XXXX-XXX0');
+        expect(profile.contactName).to.eql('Some Person');
+        expect(profile.email).to.eql('noreply@familysearch.org');
+        expect(profile._raw).to.be.a('string');
+        expect(profile._json).to.be.an('object');
 
-      // mock
-      strategy._oauth2._request = function(method, url, headers, post_body, access_token, callback) {
-        if (url == 'https://sandbox.familysearch.org/platform/users/current') {
-          var body = '{"users":[{"id":"XXXX-XXX0","contactName":"Micheal Dickenson","email":"noreply@familysearch.org","links":{"self":{"href":"https://sandbox.familysearch.org/platform/users/current"}}}]}';
-          callback(null, body, undefined);
-        } else {
-          callback(new Error('something is wrong'));
-        }
-      };
+        done();
+      });
+    });
 
-      return strategy;
-    },
+  });
 
-    'when told to load user profile': {
-      topic: function(strategy) {
-        var self = this;
-        function done(err, profile) {
-          self.callback(err, profile);
-        }
+  it('should load user profile via userProfileURL property', function (done) {
+    strategy = new FamilySearchStrategy({
+      userProfileURL: 'https://api-integ.familysearch.org/platform/users/current',
+      devKey: 'ABC123'
+    }, function () {});
 
-        process.nextTick(function () {
-          strategy.userProfile('access-token', done);
-        });
-      },
-
-      'should not error' : function(err, req) {
-        assert.isNull(err);
-      },
-      'should load profile' : function(err, profile) {
-        assert.equal(profile.provider, 'familysearch');
-        assert.equal(profile.id, 'XXXX-XXX0');
-        assert.equal(profile.contactName, 'Micheal Dickenson');
-        assert.equal(profile.email, 'noreply@familysearch.org');
-      },
-      'should set raw property' : function(err, profile) {
-        assert.isString(profile._raw);
-      },
-      'should set json property' : function(err, profile) {
-        assert.isObject(profile._json);
+    strategy._oauth2._request = function (method, url, headers, post_body, access_token, callback) {
+      if (url === 'https://api-integ.familysearch.org/platform/users/current') {
+        const body = '{"users":[{"id":"ABCD-1234","contactName":"Sandbox Account","email":"noreply@familysearch.org","links":{"self":{"href":"https://api-integ.familysearch.org/platform/users/current"}}}]}';
+        callback(null, body, undefined);
+      } else {
+        callback(new Error('something is wrong'));
       }
-    }
-  },
+    };
 
-  'strategy when loading user profile and encountering an error': {
-    topic: function() {
-      var strategy = new FamilySearchStrategy({
-        devKey: 'ABC123'
-      },
-      function() {});
+    process.nextTick(function () {
+      strategy.userProfile('access-token', function (err, profile) {
+        expect(err).to.not.exist;
+        expect(profile.provider).to.eql('familysearch');
+        expect(profile.id).to.eql('ABCD-1234');
+        expect(profile.contactName).to.eql('Sandbox Account');
+        expect(profile.email).to.eql('noreply@familysearch.org');
+        expect(profile._raw).to.be.a('string');
+        expect(profile._json).to.be.an('object');
 
-      // mock
-      strategy._oauth2._request = function(method, url, headers, post_body, access_token, callback) {
-        callback(new Error('something went wrong'));
-      };
+        done();
+      });
+    });
 
-      return strategy;
-    },
+  });
 
-    'when told to load user profile': {
-      topic: function(strategy) {
-        var self = this;
-        function done(err, profile) {
-          self.callback(err, profile);
-        }
+  it('should handle errors when loading user profile', function (done) {
+    strategy._oauth2._request = function (method, url, headers, post_body, access_token, callback) {
+      callback(new Error('Profile loading error'));
+    };
 
-        process.nextTick(function () {
-          strategy.userProfile('access-token', done);
-        });
-      },
+    process.nextTick(function () {
+      strategy.userProfile('access-token', function (err, profile) {
+        expect(err).to.be.an.instanceof(InternalOAuthError);
+        expect(err).to.match(/Profile loading error/);
+        expect(profile).to.not.exist;
 
-      'should error' : function(err, req) {
-        assert.isNotNull(err);
-      },
-      'should wrap error in InternalOAuthError' : function(err, req) {
-        assert.equal(err.constructor.name, 'InternalOAuthError');
-      },
-      'should not load profile' : function(err, profile) {
-        assert.isUndefined(profile);
-      }
-    }
-  }
+        done();
+      });
+    });
+  });
 
-}).export(module);
+  it('should handle malformed response when loading user profile', function (done) {
+    strategy._oauth2._request = function (method, url, headers, post_body, access_token, callback) {
+      callback(null, '<html><body>Not Found</body>');
+    };
+
+    process.nextTick(function () {
+      strategy.userProfile('access-token', function (err, profile) {
+        expect(err).to.be.an.instanceof(SyntaxError);
+        expect(err).to.match(/Unexpected token/);
+        expect(profile).to.not.exist;
+
+        done();
+      });
+    });
+  });
+
+});

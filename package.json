@@ -1,8 +1,15 @@
 {
   "name": "passport-familysearch",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "FamilySearch authentication strategy for Passport.",
-  "keywords": ["passport", "familysearch", "auth", "authn", "authentication", "identity"],
+  "keywords": [
+    "passport",
+    "familysearch",
+    "auth",
+    "authn",
+    "authentication",
+    "identity"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/jaredhanson/passport-familysearch.git"
@@ -10,25 +17,50 @@
   "bugs": {
     "url": "http://github.com/jaredhanson/passport-familysearch/issues"
   },
-  "author": { "name": "Jared Hanson", "email": "jaredhanson@gmail.com", "url": "http://www.jaredhanson.net/" },
+  "author": {
+    "name": "Jared Hanson",
+    "email": "jaredhanson@gmail.com",
+    "url": "http://www.jaredhanson.net/"
+  },
   "contributors": [
-    { "name": "Logan Allred", "email": "redbugz@gmail.com" },
-    { "name": "Tim Shadel", "email": "timshadel@gmail.com", "url": "http://timshadel.com/" }
+    {
+      "name": "Logan Allred",
+      "email": "redbugz@gmail.com"
+    },
+    {
+      "name": "Tim Shadel",
+      "email": "timshadel@gmail.com",
+      "url": "http://timshadel.com/"
+    }
   ],
-  "licenses": [ {
-    "type": "MIT",
-    "url": "http://www.opensource.org/licenses/MIT" 
-  } ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/MIT"
+    }
+  ],
   "main": "./lib/passport-familysearch",
   "dependencies": {
-    "pkginfo": "0.2.x",
-    "passport-oauth": "~0.1.9"
+    "passport-oauth2": "^1.4.0",
+    "pkginfo": "^0.4.1"
   },
   "devDependencies": {
-    "vows": "0.6.x"
+    "chai": "^4.1.2",
+    "chai-passport-strategy": "^1.0.1",
+    "mocha": "^4.0.1",
+    "nyc": "^11.3.0"
   },
   "scripts": {
-    "test": "NODE_PATH=lib node_modules/.bin/vows test/*-test.js"
+    "test": "nyc mocha test/*"
   },
-  "engines": { "node": ">= 0.4.0" }
+  "engines": {
+    "node": ">= 4"
+  },
+  "nyc": {
+    "reporter": [
+      "text",
+      "lcov"
+    ],
+    "report-dir": "./reports/coverage"
+  }
 }
